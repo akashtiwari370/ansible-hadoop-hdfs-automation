@@ -1,0 +1,88 @@
+- hosts: namenode
+  tasks:
+          - name: "copying jdk"
+            copy:
+                    src: "jdk-8u171-linux-x64.rpm"
+                    dest: "/"
+
+          - name: "copying hadoop"
+            copy: 
+                    src: "hadoop-1.2.1-1.x86_64.rpm"
+                    dest: "/"
+
+          - name: "installing jdk"
+            command: "rpm -ivh /jdk-8u171-linux-x64.rpm"
+   
+          - name: "installing hadoop"
+            command: "rpm -ivh /hadoop-1.2.1-1.x86_64.rpm --force"
+
+          - name: "creating name node folder"
+            file:
+                    path: "/nn"
+                    state: directory
+
+          - name: "copying hdfs"
+            template:
+                    src: "hdfs-site-m.xml"
+                    dest: "/etc/hadoop/hdfs-site.xml"
+          - name: "copying core file"
+            template:
+                    src: "core-site-m.xml"
+                    dest: "/etc/hadoop/core-site.xml"
+          - name: "formatting name node"
+            command: "hadoop namenode -format -force"
+          
+          - name: "stopping firewall"
+            command: "systemctl stop firewalld"
+          
+          - name: "disablling selinux"
+            command: "setenforce 0"
+
+          - name: "starting name node"
+            command: "hadoop-daemon.sh start namenode"
+
+
+
+
+
+
+- hosts: datanode
+  tasks:
+          - name: "copying jdk"
+            copy:
+                    src: "jdk-8u171-linux-x64.rpm"
+                    dest: "/"
+
+          - name: "copying hadoop"
+            copy:
+                    src: "hadoop-1.2.1-1.x86_64.rpm"
+                    dest: "/"
+
+          - name: "installing jdk"
+            command: "rpm -ivh /jdk-8u171-linux-x64.rpm"
+
+          - name: "installing hadoop"
+            command: "rpm -ivh /hadoop-1.2.1-1.x86_64.rpm --force"
+
+          - name: "creating data node folder"
+            file:
+                    path: "/dn"
+                    state: directory
+          - name: "copying hdfs"
+            template:
+                    src: "hdfs-site.xml"
+                    dest: "/etc/hadoop/hdfs-site.xml"
+          - name: "copying core file"
+            template:
+                    src: "core-site-m.xml"
+                    dest: "/etc/hadoop/core-site.xml"
+
+          - name: "stopping firewall"
+            command: "systemctl stop firewalld"
+
+          - name: "disablling selinux"
+            command: "setenforce 0"
+
+          - name: "starting data node"
+            command: "hadoop-daemon.sh start datanode"
+  
